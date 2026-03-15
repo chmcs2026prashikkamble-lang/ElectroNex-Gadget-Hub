@@ -1,4 +1,4 @@
-import { Link, useLocation } from "react-router";
+import { Link, useLocation, useNavigate } from "react-router"; // Added useNavigate
 import { Package, UserCircle, ShieldCheck, Edit2, Trash2, Star, CheckCircle2, XCircle } from "lucide-react";
 import { formatData } from "../lib/utils";
 import api from "../lib/axios";
@@ -8,19 +8,17 @@ import { useState } from "react";
 const ProductCard = ({ product, setProducts }) => {
   const [showModal, setShowModal] = useState(false);
   const location = useLocation();
+  const navigate = useNavigate(); // Hook for programmatic navigation
 
   const isActive = location.pathname === `/products/${product._id}`;
 
-  // Defaulting inStock to true and rating to 1 if they are somehow missing
   const isAvailable = product.inStock !== false; 
   const currentRating = product.rating || 1;
 
   const handleDelete = async () => {
     try {
-      await api.delete(`/products/${product._id}`);
-
+      await api.delete(`/products/${id}`);
       setProducts((prev) => prev.filter((p) => p._id !== product._id));
-
       toast.success("Product deleted successfully", {
         style: { background: '#12151c', color: '#fff', border: '1px solid #22d3ee' }
       });
@@ -35,7 +33,7 @@ const ProductCard = ({ product, setProducts }) => {
 
   return (
     <>
-      {/* CARD */}
+      {/* MAIN CARD: Now links to the VIEW page */}
       <Link
         to={`/products/${product._id}`}
         className={`relative block rounded-2xl bg-[#12151c] p-6 border transition-all duration-300 group flex flex-col h-full
@@ -48,7 +46,6 @@ const ProductCard = ({ product, setProducts }) => {
 
         {/* Top Row: Stock Status & Category Badge */}
         <div className="flex justify-between items-start mb-4">
-          {/* Stock Status */}
           {isAvailable ? (
             <div className="flex items-center gap-1.5 px-2.5 py-1 text-[11px] font-bold tracking-wider rounded-md bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
               <CheckCircle2 className="size-3.5" /> IN STOCK
@@ -59,7 +56,6 @@ const ProductCard = ({ product, setProducts }) => {
             </div>
           )}
 
-          {/* Category */}
           <span className="px-3 py-1 text-xs font-semibold tracking-wider rounded-full bg-cyan-500/10 text-cyan-400 border border-cyan-500/30 shadow-[0_0_10px_rgba(34,211,238,0.1)]">
             {product.category?.toUpperCase() || "GADGET"}
           </span>
@@ -67,8 +63,6 @@ const ProductCard = ({ product, setProducts }) => {
 
         {/* Product Info */}
         <div className="space-y-3 flex-grow">
-
-          {/* Name & Rating Row */}
           <div className="flex justify-between items-start gap-2">
             <div className="flex items-start gap-3">
               <Package className="size-5 text-cyan-400 mt-0.5 drop-shadow-[0_0_5px_rgba(34,211,238,0.6)] shrink-0" />
@@ -77,14 +71,12 @@ const ProductCard = ({ product, setProducts }) => {
               </p>
             </div>
             
-            {/* Rating */}
             <div className="flex items-center gap-1 bg-yellow-500/10 px-2 py-1 rounded border border-yellow-500/20 shrink-0">
               <Star className="size-3.5 text-yellow-400 fill-yellow-400 drop-shadow-[0_0_3px_rgba(250,204,21,0.6)]" />
               <span className="text-xs font-bold text-yellow-400">{currentRating}</span>
             </div>
           </div>
 
-          {/* Brand */}
           <div className="flex items-center gap-3 text-gray-400">
             <UserCircle className="size-4 shrink-0" />
             <p className="text-sm font-medium tracking-wide">
@@ -92,12 +84,10 @@ const ProductCard = ({ product, setProducts }) => {
             </p>
           </div>
 
-          {/* Description Preview */}
           <p className="text-sm text-gray-500 line-clamp-2 leading-relaxed pl-7">
             {product.description || "No description provided for this product."}
           </p>
 
-          {/* Price & Warranty */}
           <div className="pt-2 flex flex-col gap-2">
             <div className="text-2xl font-black text-white pl-7">
               ₹ {product.price?.toLocaleString()}
@@ -107,21 +97,28 @@ const ProductCard = ({ product, setProducts }) => {
               <span>{product.warrantyPeriod || "No"} Warranty</span>
             </div>
           </div>
-
         </div>
 
         {/* Footer */}
         <div className="mt-6 pt-4 border-t border-gray-800/60 flex justify-between items-center shrink-0">
-
           <span className="text-xs font-medium text-gray-500">
             {formatData(new Date(product.createdAt))}
           </span>
 
           {/* Action Icons */}
           <div className="flex items-center gap-3">
-            <div className="p-2 rounded-lg hover:bg-yellow-500/10 group/edit transition-colors" title="Edit Product">
+            {/* EDIT BUTTON: Now correctly links to /edit/id and stops propagation */}
+            <button
+              onClick={(e) => {
+                e.preventDefault(); // Stop the parent card link from firing
+                e.stopPropagation(); // Stop the click event from bubbling up
+                navigate(`/edit/${product._id}`);
+              }}
+              className="p-2 rounded-lg hover:bg-yellow-500/10 group/edit transition-colors" 
+              title="Edit Product"
+            >
               <Edit2 className="size-4 text-gray-500 group-hover/edit:text-yellow-400 transition-colors" />
-            </div>
+            </button>
 
             <button
               onClick={(e) => {
@@ -142,38 +139,20 @@ const ProductCard = ({ product, setProducts }) => {
       {showModal && (
         <dialog className="modal modal-open backdrop-blur-sm bg-black/40">
           <div className="modal-box bg-[#12151c] border border-gray-800 shadow-[0_0_40px_rgba(0,0,0,0.5)]">
-
             <h3 className="font-bold text-xl text-rose-500 flex items-center gap-3">
               <div className="p-2 bg-rose-500/10 rounded-full">
                 <Trash2 className="size-5" />
               </div>
               Delete Product
             </h3>
-
             <p className="py-6 text-gray-400 text-base leading-relaxed">
-              Are you sure you want to delete
-              <span className="font-bold text-gray-200">
-                {" "} '{product.name}'
-              </span>? <br />
+              Are you sure you want to delete <span className="font-bold text-gray-200">'{product.name}'</span>? <br />
               This action cannot be undone.
             </p>
-
             <div className="modal-action">
-              <button
-                className="px-5 py-2.5 text-sm font-medium rounded-lg text-gray-300 hover:text-white hover:bg-gray-800 transition-colors"
-                onClick={() => setShowModal(false)}
-              >
-                Cancel
-              </button>
-
-              <button
-                className="px-5 py-2.5 text-sm font-medium rounded-lg bg-rose-500/10 text-rose-500 border border-rose-500/50 hover:bg-rose-500 hover:text-white transition-all shadow-[0_0_15px_rgba(244,63,94,0.2)] flex items-center gap-2"
-                onClick={handleDelete}
-              >
-                <Trash2 className="size-4" /> Delete
-              </button>
+              <button className="px-5 py-2.5 text-sm font-medium rounded-lg text-gray-300 hover:text-white hover:bg-gray-800 transition-colors" onClick={() => setShowModal(false)}>Cancel</button>
+              <button className="px-5 py-2.5 text-sm font-medium rounded-lg bg-rose-500/10 text-rose-500 border border-rose-500/50 hover:bg-rose-500 hover:text-white transition-all shadow-[0_0_15px_rgba(244,63,94,0.2)] flex items-center gap-2" onClick={handleDelete}><Trash2 className="size-4" /> Delete</button>
             </div>
-
           </div>
         </dialog>
       )}
