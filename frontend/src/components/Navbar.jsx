@@ -46,4 +46,4 @@ const Navbar = ({ searchQuery, setSearchQuery }) => {
   );
 };
 
-export default Navbar;
+export default Navbar; 
