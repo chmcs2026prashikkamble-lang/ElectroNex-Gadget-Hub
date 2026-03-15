@@ -62,16 +62,32 @@ Bash
 cd frontend
 npm install
 npm run dev
-📂 Project Structure
-Plaintext
+
+## 📂 Project Structure
+
+This project follows a clean, modular architecture for both the backend and frontend to ensure scalability and ease of maintenance.
+
+### 🏠 Backend (Node.js & Express)
+```text
 ├── backend/
-│   ├── models/        # Mongoose Schemas (Product Model)
-│   ├── routes/        # API Endpoints
-│   └── server.js      # Entry point
+│   ├── src/
+│   │   ├── config/        # Database connection logic (db.js)
+│   │   ├── controller/    # Request handlers (productController.js)
+│   │   ├── models/        # Mongoose Schemas (productModel.js)
+│   │   ├── routes/        # API endpoint definitions (productRoutes.js)
+│   │   └── server.js      # Main server entry point
+│   ├── .env               # Environment configurations
+│   └── package.json       # Backend dependencies & scripts
 ├── frontend/
 │   ├── src/
-│   │   ├── components/# Reusable UI (Navbar, ProductCard)
-│   │   ├── pages/     # Page views (Home, Create, Edit)
-│   │   └── lib/       # Axios configuration & Utils
-└── README.md
-
+│   │   ├── components/    # Reusable UI (Navbar, ProductCard, ProductNotFound)
+│   │   ├── lib/           # Logic & Configs (axios.js, utils.js)
+│   │   ├── pages/         # Application Views
+│   │   │   ├── CreateProductPage.jsx   # Add New Product Form
+│   │   │   ├── HomePage.jsx            # Main Grid with Search & Filters
+│   │   │   ├── ProductDetailPage.jsx   # Edit Existing Product Form
+│   │   │   └── ProductViewPage.jsx     # Detailed Product Showcase (New!)
+│   │   ├── App.jsx        # Routing configuration
+│   │   └── main.jsx       # Client entry point
+│   ├── tailwind.config.js # CSS framework configuration
+│   └── package.json       # Frontend dependencies & scripts
